@@ -1,0 +1,33 @@
+{
+   "POST2OPT": {
+      "token": "https://login.microsoftonline.com/db05faca-c82a-4b9d-b9c5-0f64b6755421/oauth2/v2.0/token",
+
+      "qe_url": "https://qe.nonprod.easygroup.optum.com/api/claim/posttooptimizer",
+      "qe_scope": "https://qe.nonprod.easygroup.optum.com/.default",
+      "qe_evarClientId": "azure_qe_client_id",
+      "qe_evarClientSecret": "azure_qe_client_secret",
+
+      "prod_url": "https://easygroup.optum.com/api/claim/posttooptimizer",
+      "prod_scope": "https://easygroup.optum.com/.default",
+      "prod_evarClientId": "azure_prod_client_id",
+      "prod_evarClientSecret": "azure_prod_client_secret",
+
+      "qe_psi_url": "https://qe.nonprod.psi.optum.com/api/claim/posttooptimizer",
+      "qe_psi_scope": "https://qe.nonprod.psi.optum.com/.default",
+      "qe_psi_evarClientId": "azure_qe_psi_client_id",
+      "qe_psi_evarClientSecret": "azure_qe_psi_client_secret",
+
+      "prod_psi_url": "https://psi.optum.com/api/claim/posttooptimizer",
+      "prod_psi_scope": "https://psi.optum.com/.default",
+      "prod_psi_evarClientId": "azure_prod_psi_client_id",
+      "prod_psi_evarClientSecret": "azure_prod_psi_client_secret",
+
+      "url": "",
+      "scope": "",
+      "evarClientId": "",
+      "evarClientSecret": "",
+      "ezgDebug": "false",
+      "ezgEnvironment": "ga",
+      "ezgCoreVersion": ""
+   }
+}
