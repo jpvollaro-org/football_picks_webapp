@@ -67,7 +67,6 @@ const TeamLogo = ({ values, props }) => {
 };
 
 const Points = ({ values }) => {
-   console.log({values})
    if (values === 300)
       return (<>_</>);
    else
