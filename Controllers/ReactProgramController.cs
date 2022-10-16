@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using football_picks_webapp;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,15 @@ using static System.Formats.Asn1.AsnWriter;
 
 namespace ReactProgramNS.Controllers
 {
+	public class SelectionResult
+	{
+		public string responseMessage { get; set; }
+		public SelectionResult(string m)
+		{
+			responseMessage = m;
+		}
+	}
+
 	[Route("api/[controller]")]
 	[ApiController]
 	public class ReactProgramController : ControllerBase
@@ -35,14 +45,15 @@ namespace ReactProgramNS.Controllers
 		public ReactProgramController(ILogger<ReactProgramController> logger)
 		{
 			_logger = logger;
+			_sportsApi.SetLogger(logger);
 			if (playerTable == null)
 			{
-				WeeklyScoreboard.BuildWeeklyScoreboard(_sportsApi);
-				ExcelHelperClass excelHelperClass = new ExcelHelperClass();
+				WeeklyScoreboard.BuildWeeklyScoreboard(_sportsApi, logger);
+				ExcelHelperClass excelHelperClass = new ExcelHelperClass(logger);
 				playerTable = excelHelperClass.ReadPredectionFile();
-				WeeklyScoreboard.CalculatePoints(playerTable);
-				PropBets.CalculatePropPoints(playerTable);
+				WeeklyScoreboard.CalculatePoints(playerTable, logger);
 			}
+			WeeklyScoreboard.CalculatePoints(playerTable, logger);
 		}
 
 		[HttpGet]
@@ -66,6 +77,13 @@ namespace ReactProgramNS.Controllers
 			}
 			playerList.Sort();
 			return playerList;
+		}
+
+		[HttpGet]
+		[Route("GetWeeklySelections")]
+		public List<GameScore> GetWeeklySelections(int weekNumber = 0)
+		{
+			return ExcelHelperClass.GetWeeklyGameSelections();
 		}
 
 		[HttpGet]
@@ -116,7 +134,6 @@ namespace ReactProgramNS.Controllers
 					for (int idx = 0; idx < tempPlayerData.spreadsheetPicks.Count; idx++)
 					{
 						string p = tempPlayerData.spreadsheetPicks[idx].pickString;
-						string homeTeamKey = "";
 
 						if (p.Contains(':'))
 						{
@@ -157,6 +174,20 @@ namespace ReactProgramNS.Controllers
 				result.scoreLine= excpt.Message;
 				return result;
 			}
+		}
+
+		[HttpPut]
+		[Route("~/api/ReactProgram/SendPlayerWeeklySelections")]
+		public SelectionResult SendPlayerWeeklySelections(List<GameScore> playerSelectedScores)
+		{
+			Request.Headers.TryGetValue("playerKey", out var playerKey);
+			var playerKeyString = playerKey.ElementAt(0); 
+			int playerCol = int.Parse(playerKeyString);
+			ExcelHelperClass excelHelperClass = new ExcelHelperClass(_logger);
+			string response = excelHelperClass.WritePicks(playerSelectedScores, playerCol, currentWeekNumber);
+			playerTable = excelHelperClass.ReadPredectionFile();
+			WeeklyScoreboard.CalculatePoints(playerTable,_logger);
+			return new SelectionResult(response);
 		}
 	}
 }
