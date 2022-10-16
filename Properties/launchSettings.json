@@ -19,7 +19,7 @@
          "ASPNETCORE_ENVIRONMENT": "Development"
       }
    },
-    "TestClaimProgram": {
+    "Football_picks_webapp": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
