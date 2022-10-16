@@ -7,6 +7,7 @@ using System.IO;
 using static System.Formats.Asn1.AsnWriter;
 using System.Diagnostics;
 using nfl_picks_pool.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace nfl_picks_pool
 {
@@ -122,6 +123,7 @@ namespace nfl_picks_pool
 
 	public class SportsApiViper : ISportsApi
 	{
+		private ILogger _logger { get; set; }
 		public static readonly string sportsViperApiKey = "";
 		public static readonly int sportsId = 63;
 		public static readonly int competitionId = 9464;
@@ -139,6 +141,10 @@ namespace nfl_picks_pool
 			{ 4430, "SEAHAWKS" },{ 4389, "49ERS" },{ 4412, "CARDINALS" },{ 4387, "RAMS" },
 		};
 
+		public SportsApiViper(ILogger logger)
+		{
+			_logger = logger;
+		}
 
 		public async Task<List<GameScore>> GetLiveGameScores()
 		{
@@ -165,7 +171,7 @@ namespace nfl_picks_pool
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				_logger.LogError(e.Message);
 			}
 
 			List <GameScore> gameScores = new List<GameScore>();
@@ -205,7 +211,7 @@ namespace nfl_picks_pool
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				_logger.LogError(e.Message);
 			}
 
 			return null;
@@ -248,7 +254,7 @@ namespace nfl_picks_pool
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				_logger.LogError(e.Message);
 			}
 			return 0;
 		}
