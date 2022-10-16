@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using nfl_picks_pool.Interfaces;
 
 namespace nfl_picks_pool
 {
 	public class SportsTeamStubTest : ISportsApi
 	{
+		public ILogger Logger { get; set; }
+
+		public void SportsTeamStubTest(ILogger logger)
+		{
+			Logger = logger;
+		}
+
 		public List<GameScore> GetFakeData()
 		{
 			List<GameScore> gameScores = new List<GameScore>();
