@@ -5,15 +5,14 @@ const SelectionOptionComponent = (props) =>
 	const setOption = (gameScore, uiIndex) => {
 		if (gameScore) {
 			let awayTeamLabel = gameScore.awayTeam;
-			let awayTeamOption = { label: awayTeamLabel, value: 1, tabIndex: uiIndex };
+			let awayTeamOption = { label: awayTeamLabel, value: 1, tabIndex: uiIndex, lookupKey: gameScore.homeTeam, opp: gameScore.homeTeam };
 			let homeTeamLabel = gameScore.homeTeam;
-			let homeTeamOption = { label: homeTeamLabel, value: 2, tabIndex: uiIndex };
+			let homeTeamOption = { label: homeTeamLabel, value: 2, tabIndex: uiIndex, lookupKey: gameScore.homeTeam, opp: gameScore.awayTeam };
 			let myOptions = [awayTeamOption, homeTeamOption];
 			return myOptions;
 		}
 		else
 			return [];
-
 	}
 
 	const teamOptions = setOption(props.gameScore, props.tabIndex);
