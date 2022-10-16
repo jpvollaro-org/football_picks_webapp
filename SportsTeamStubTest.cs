@@ -10,7 +10,7 @@ namespace nfl_picks_pool
 	{
 		public ILogger Logger { get; set; }
 
-		public void SportsTeamStubTest(ILogger logger)
+		public SportsTeamStubTest(ILogger logger)
 		{
 			Logger = logger;
 		}

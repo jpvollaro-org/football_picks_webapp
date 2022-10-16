@@ -1,5 +1,4 @@
-﻿using football_picks_webapp;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -40,12 +39,12 @@ namespace ReactProgramNS.Controllers
 		private readonly ILogger<ReactProgramController> _logger;
 		private static Dictionary<int, Player> playerTable = null;
 		private static int currentWeekNumber = ClassConstants.GetPickWeek();
-		private static ISportsApi _sportsApi = new SportsApiViper();
+		private static ISportsApi _sportsApi;
 
 		public ReactProgramController(ILogger<ReactProgramController> logger)
 		{
 			_logger = logger;
-			_sportsApi.SetLogger(logger);
+			_sportsApi = new SportsApiViper(logger);
 			if (playerTable == null)
 			{
 				WeeklyScoreboard.BuildWeeklyScoreboard(_sportsApi, logger);
