@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using nfl_picks_pool.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,32 +30,6 @@ namespace nfl_picks_pool
 			}
 		}
 
-		public static void UpdateGameScoreFields(string homeTeam, int weekNumber, string column2)
-		{
-			try
-			{
-				GameScore gameScore;
-				if (pastResults[weekNumber] == null)
-					return;
-				var weekScores = pastResults[weekNumber];
-
-				if (weekScores.TryGetValue(homeTeam, out gameScore))
-				{
-					int points = -1;
-					if (int.TryParse(column2, out points))
-					{
-						if (points > -1)
-							gameScore.gameOfWeek = true;
-					}
-					gameScore.pickGame = true;
-				}
-			}
-			catch
-			{
-			}
-			return;
-		}
-
 		public static void UpdateGameScoreFinalScore(int weekNumber, GameScore finalScore)
 		{
 			try
@@ -76,7 +51,7 @@ namespace nfl_picks_pool
 			return;
 		}
 
-		public static void BuildWeeklyScoreboard(ISportsApi sportsApi)
+		public static void BuildWeeklyScoreboard(ISportsApi sportsApi, ILogger logger)
 		{
 			int weekNumber = 1;
 			int currentWeek = nfl_picks_pool.ClassConstants.GetPickWeek();
@@ -100,8 +75,10 @@ namespace nfl_picks_pool
 			}
 		}
 
-		public static void CalculatePoints(Dictionary<int, Player> playerTable)
+		public static void CalculatePoints(Dictionary<int, Player> playerTable, ILogger logger)
 		{
+			PropBets.CalculatePropPoints(playerTable);
+
 			int currentPickWeek = ClassConstants.GetPickWeek();
 			for (int weekNumber = 1; weekNumber <= currentPickWeek; weekNumber++)
 			{
@@ -120,7 +97,10 @@ namespace nfl_picks_pool
 						Player p = playerEntry.Value;
 						var myPicks = p.spreadsheetPicks[weekNumber];
 						if (myPicks == null)
+						{
 							break;
+						}
+
 						if (g.gameOfWeek == false)
 						{
 							var pickmd = myPicks.Where(x => x.pickString == winningTeamName).FirstOrDefault();
@@ -191,6 +171,20 @@ namespace nfl_picks_pool
 				}
 			}
 			return;
+		}
+
+		public static GameScore GetGameScore(int workingWeekNumber, string v)
+		{
+			try
+			{
+				var weekly = pastResults[workingWeekNumber];
+				GameScore score = weekly[v];
+				return weekly[v];
+			}
+			catch
+			{
+			}
+			return null;
 		}
 	}
 }
