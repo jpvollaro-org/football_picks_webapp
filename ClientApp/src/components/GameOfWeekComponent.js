@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import useInput from '../hooks/use-input'
-
 const GameOfWeekComponent = (props) =>
 {
 	if (props.gameScore) {
 		let displayTeam = ''
-		if (props.side === 'away')
+		if (props.side === 'away score')
 			displayTeam = props.gameScore.awayTeam;
 		else
 			displayTeam = props.gameScore.homeTeam;
@@ -18,12 +15,13 @@ const GameOfWeekComponent = (props) =>
 						</div>
 						<div className="col-sm-2">
 							<input
+								alt={displayTeam}
 								type="text"
 								pattern="[0-9]*"
 								value={props.teamScore}
-								onChange={(e) =>
-									props.SetScore((v) => (e.target.validity.valid ? e.target.value : v))
-								}
+								onChange={props.SetScore}
+								tabIndex={props.tabIndex}
+								title={props.side}
 							/>
 						</div>
 					</div>
