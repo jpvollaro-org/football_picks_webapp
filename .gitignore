@@ -84,3 +84,5 @@ nfl_picks_pool.csproj.user
 ServiceDependencies/
 nfl_picks_pool/~$NFL PREDICTIONS 2022.xlsx
 nfl_picks_pool/Properties/PublishProfiles/
+Properties/PublishProfiles/
+serilog/
