@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace ReactProgramNS
 {
@@ -14,6 +15,10 @@ namespace ReactProgramNS
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
+
+			Log.Logger = new LoggerConfiguration()
+				.ReadFrom.Configuration(configuration)
+				.CreateLogger();
 		}
 
 		public IConfiguration Configuration { get; }
