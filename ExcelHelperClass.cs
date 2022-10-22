@@ -17,11 +17,12 @@ namespace ReactProgramNS
 	public class ExcelHelperClass
 	{
 		private ILogger _logger;
+
 		private static readonly string workingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-		public static readonly string PredictionsFile = workingDirectory + System.IO.Path.DirectorySeparatorChar +
-			"Files\\NFL PREDICTIONS 2022.csv";
+
 		public static readonly string PredictionsFileXls = workingDirectory + System.IO.Path.DirectorySeparatorChar +
 			"Files\\NFL PREDICTIONS 2022.xlsx";
+		
 		private static List<GameScore> currentWeeklyGames = new List<GameScore>();
 
 		private int currentExcelRowNumber = 1;
