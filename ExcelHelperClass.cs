@@ -205,8 +205,13 @@ namespace ReactProgramNS
 			return currentWeeklyGames;
 		}
 
-		public string WritePicks(List<GameScore> playerScoreSelections, int playerColumn, int currentPickWeek)
+		public string WritePicks(List<GameScore> playerScoreSelections, Player playerEntry, int currentPickWeek)
 		{
+			if (playerEntry == null)
+			{
+				return "UNKNOWN PLAYER KEY DETECTED";
+			}
+			
 			using var wbook = new XLWorkbook(PredictionsFileXls);
 			var ws = wbook.Worksheet("Sheet1");
 			foreach (var game in playerScoreSelections)
@@ -220,15 +225,15 @@ namespace ReactProgramNS
 
 				if (scoreBoardGame.gameOfWeek)
 				{
-					ws.Cell(scoreBoardGame.excelRowNumber-1, playerColumn).Value = game.awayScore;
-					ws.Cell(scoreBoardGame.excelRowNumber, playerColumn).Value = game.homeScore;
+					ws.Cell(scoreBoardGame.excelRowNumber-1, playerEntry.id).Value = game.awayScore;
+					ws.Cell(scoreBoardGame.excelRowNumber, playerEntry.id).Value = game.homeScore;
 				}
 				else
 				{
 					if (game.awayScore > game.homeScore)
-					   ws.Cell(scoreBoardGame.excelRowNumber-1, playerColumn).Value = game.awayTeam;
+					   ws.Cell(scoreBoardGame.excelRowNumber-1, playerEntry.id).Value = game.awayTeam;
 					else
-					   ws.Cell(scoreBoardGame.excelRowNumber, playerColumn).Value = game.homeTeam;
+					   ws.Cell(scoreBoardGame.excelRowNumber, playerEntry.id).Value = game.homeTeam;
 				}
 			}
 			wbook.Save();
