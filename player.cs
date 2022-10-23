@@ -4,6 +4,21 @@ using System.Text;
 
 namespace nfl_picks_pool
 {
+	public class WeeklyPlayerData
+	{
+		public int points { get; set; }
+		public string picks { get; set; }
+	}
+
+	public class TabularPlayerData
+	{
+		public string playerName { get; set; }
+		public int totalPoints { get; set; }
+		public int weeklyPoints { get; set; }
+		public int bonusPoints { get; set; }
+		public List<WeeklyPlayerData> weeklyData { get; set; }
+	}
+
 	public class PickMetaData
 	{
 		public int pointDifferences { get; set; } = 300;
@@ -53,24 +68,32 @@ namespace nfl_picks_pool
 			}
 
 			return Comparer<int>.Default.Compare(p.currentPlayerPoints, this.currentPlayerPoints);
-			//return Comparer<int>.Default.Compare(p.futurePlayerPoints, this.futurePlayerPoints);
-			//return Comparer<int>.Default.Compare(this.gameOfWeekDifference, p.gameOfWeekDifference);
-
 		}
 
-		public string printAllPicks()
+		public TabularPlayerData GetTabularPlayerData()
 		{
-			int totalPoints = 0;
-			int weekPoints = 0;
-			StringBuilder sb = new StringBuilder();
+			TabularPlayerData _myNewNewTable = new TabularPlayerData();
+			_myNewNewTable.playerName = this.name;
+			_myNewNewTable.weeklyData = new List<WeeklyPlayerData>();
+			_myNewNewTable.totalPoints = 0;
+			_myNewNewTable.weeklyPoints = 0;
+			_myNewNewTable.bonusPoints = PropBets.CalculatePropPoints(this);
 
-			sb.AppendLine(this.name);
-			for(int idx=1; idx<32; idx++)
+			for(int idx=1; idx<=ClassConstants.GetPickWeek(); idx++)
 			{
+				var x = new WeeklyPlayerData()
+				{
+					points = 0,
+					picks = ""
+				};
+				_myNewNewTable.weeklyData.Add(x);
+
 				if (this.spreadsheetPicks[idx] == null)
-					break;
-				weekPoints = 0;
-				sb.Append("PLAYERPOINTS");
+				{
+					continue;
+				}
+
+				StringBuilder sb = new StringBuilder();
 				foreach (var pickmd in this.spreadsheetPicks[idx])
 				{
 					sb.Append(pickmd.pickString);
@@ -78,8 +101,16 @@ namespace nfl_picks_pool
 					{
 						if (pickmd.winner)
 						{
-							sb.Append("+25");
-							weekPoints += 25;
+							if (pickmd.soleWinner)
+							{
+								sb.Append("+50");
+								x.points += 50;
+							}
+							else
+							{
+								sb.Append("+25");
+								x.points += 25;
+							}
 						}
 					}
 					else
@@ -87,24 +118,21 @@ namespace nfl_picks_pool
 						if (pickmd.soleWinner)
 						{
 							sb.Append("+35");
-							weekPoints += 35;
+							x.points += 35;
 						}
 						else if (pickmd.winner)
 						{
 							sb.Append("+10");
-							weekPoints += 10;
+							x.points += 10;
 						}
 					}
-					sb.Append(",");
+					sb.Append(", ");
 				}
-				sb.Replace("PLAYERPOINTS", String.Format("[{0}]", weekPoints));
-				sb.AppendLine();
-				totalPoints+=(weekPoints);
+				_myNewNewTable.weeklyPoints += x.points;
+				x.picks = sb.ToString();
 			}
-
-
-			sb.Append("TotalPoints=" + (totalPoints + PropBets.CalculatePropPoints(this)));
-			return sb.ToString();	
+			_myNewNewTable.totalPoints = _myNewNewTable.weeklyPoints + _myNewNewTable.bonusPoints;
+			return _myNewNewTable;
 		}
 	}
 }
