@@ -1,23 +1,41 @@
-import React, { useRef, useState, useEffect } from 'react';
-import Button from '../UI/Button';
-import Input from "../UI/Input";
+import React, { useState, useEffect, useMemo } from 'react';
+import TableComponent from './TableComponent';
 import Modal from "../UI/Modal";
 import useHttps from '../hooks/use-https';
-import styles from "./PlayerModalComponent.module.css";
-
+import myStyles from "./PlayerModalComponent.module.css";
 
 const PlayerModalComponent = (props) => {
-	const [ playerData, setPlayerData] = useState("NONE");
-	const { isLoading, error, sendRequestToFetch: sendToController } = useHttps();
+	const [tabularPlayerData, setTabularPlayerData] = useState({ weeklyData:[]});
 	const transformPlayerData = ((incomingData) => {
-		setPlayerData(incomingData.playerPicks);
+		setTabularPlayerData(incomingData);
 	});
+
+	const { isLoading, error, sendRequestToFetch: sendToController } = useHttps();
 	const playerId = props.getPlayerIdHandler();
 	useEffect(() => {
 		var urlString = "api/ReactProgram/GetPlayerData?playerId=" + playerId;
 		sendToController({ url: urlString }, transformPlayerData);
 		// eslint-disable-next-line
 	}, []);
+
+	const columns = useMemo(
+		() => [
+			{
+				Header: "--------------",
+				columns: [
+					{
+						Header: "pts",
+						accessor: "points"
+					},
+					{
+						Header: "Picks",
+						accessor: "picks",
+					}
+				]
+			}
+		],
+		[]
+	);
 
 	if (isLoading) {
 		return (
@@ -27,9 +45,24 @@ const PlayerModalComponent = (props) => {
 		);
 	}
 
+	if (error) {
+		return (
+			<Modal onClose={props.onCloseHandler}>
+				<p>{error}</p>
+			</Modal>
+		);
+	}
+
 	return (
 		<Modal onClose={props.onCloseHandler}>
-			<span className={styles.playerData}><p>{playerData}</p></span>
+			<div>
+				<p>{tabularPlayerData.playerName}</p>
+				<div className={myStyles.table}>
+					<TableComponent className={myStyles.table1} columns={columns} data={tabularPlayerData.weeklyData} />
+				</div>
+				<p><b>--------------</b></p>
+				<p><b>{tabularPlayerData.totalPoints}</b><pre>Weekly:{tabularPlayerData.weeklyPoints} Bonus:{tabularPlayerData.bonusPoints}</pre></p>
+			</div>
 		</Modal>
 	);
 };
