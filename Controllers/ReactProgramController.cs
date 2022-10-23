@@ -57,11 +57,9 @@ namespace ReactProgramNS.Controllers
 
 		[HttpGet]
 		[Route("GetPlayerData")]
-		public TempData2 GetPlayerData(int playerId)
+		public TabularPlayerData GetPlayerData(int playerId)
 		{
-			TempData2 tempData2 = new TempData2();
-			tempData2.playerPicks = playerTable[playerId].printAllPicks();
-			return tempData2;
+			return playerTable[playerId].GetTabularPlayerData();
 		}
 
 		[HttpGet]
@@ -179,14 +177,22 @@ namespace ReactProgramNS.Controllers
 		[Route("~/api/ReactProgram/SendPlayerWeeklySelections")]
 		public SelectionResult SendPlayerWeeklySelections(List<GameScore> playerSelectedScores)
 		{
-			Request.Headers.TryGetValue("playerKey", out var playerKey);
-			var playerKeyString = playerKey.ElementAt(0); 
-			int playerCol = int.Parse(playerKeyString);
-			ExcelHelperClass excelHelperClass = new ExcelHelperClass(_logger);
-			string response = excelHelperClass.WritePicks(playerSelectedScores, playerCol, currentWeekNumber);
-			playerTable = excelHelperClass.ReadPredectionFile();
-			WeeklyScoreboard.CalculatePoints(playerTable,_logger);
-			return new SelectionResult(response);
+			try
+			{
+				Request.Headers.TryGetValue("playerKey", out var playerKey);
+				var playerKeyString = playerKey.ElementAt(0).ToLower();
+
+				var playerEntry = playerTable.Where(p => p.Value.name.ToLower() == playerKeyString).ElementAt(0).Value;
+				ExcelHelperClass excelHelperClass = new ExcelHelperClass(_logger);
+				string response = excelHelperClass.WritePicks(playerSelectedScores, playerEntry, currentWeekNumber);
+				playerTable = excelHelperClass.ReadPredectionFile();
+				WeeklyScoreboard.CalculatePoints(playerTable, _logger);
+				return new SelectionResult(response);
+			}
+			catch
+			{
+			}
+			return new SelectionResult("UNKNOWN PLAYER KEY");
 		}
 	}
 }
