@@ -98,7 +98,7 @@ namespace nfl_picks_pool
 						var myPicks = p.spreadsheetPicks[weekNumber];
 						if (myPicks == null)
 						{
-							break;
+							continue;
 						}
 
 						if (g.gameOfWeek == false)
@@ -131,10 +131,12 @@ namespace nfl_picks_pool
 					{
 						foreach (var pid in gameOfWeekLogic.winningPlayers)
 						{
-							playerTable[pid].currentPlayerPoints += (25  + gameOfWeekLogic.GetBonusPoints(g, winningTeamName));
+							int bonusPoints = gameOfWeekLogic.GetBonusPoints(g, winningTeamName);
+							playerTable[pid].currentPlayerPoints += (25  + bonusPoints);
 							var pickmd = playerTable[pid].spreadsheetPicks[weekNumber].Where(
 								x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
 							pickmd.winner = true;
+							pickmd.soleWinner = bonusPoints != 0 ? true : false; 
 						}
 
 					}
