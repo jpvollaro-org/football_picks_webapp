@@ -135,6 +135,7 @@ namespace ReactProgramNS
 						continue;
 					}
 
+					string homeTeam = string.Empty;
 					for (int i = 1; i <= lastColumn; i++)
 					{
 						string pick = excelRow.Cell(i).Value.ToString();
@@ -145,9 +146,10 @@ namespace ReactProgramNS
 						{
 							GameScore score = WeeklyScoreboard.GetGameScore(workingWeekNumber, excelRow.Cell(1).Value.ToString());
 							if (score != null)
-							{
+							{ 
 								score.excelRowNumber = currentExcelRowNumber-1;
 								score.pickGame = true;
+								homeTeam = score.homeTeam;
 								if (int.TryParse(excelRow.Cell(2).Value.ToString(), out int points))
 								{
 									score.gameOfWeek = true;
@@ -161,6 +163,13 @@ namespace ReactProgramNS
 									currentWeeklyGames.Add(score);
 								}
 							}
+							if (score == null)
+							{
+								var excelNextRow = ws.Row(currentExcelRowNumber);
+								score = WeeklyScoreboard.GetGameScore(workingWeekNumber, excelNextRow.Cell(1).Value.ToString());
+								if (score != null)
+									homeTeam = score.homeTeam;
+							}
 						}
 
 						if (playerDictionary.ContainsKey(i))
@@ -170,11 +179,11 @@ namespace ReactProgramNS
 
 							if (int.TryParse(pick, out int score))
 							{
-								playerDictionary[i].spreadsheetPicks[workingWeekNumber].Add(new PickMetaData(excelRow.Cell(1).Value.ToString() + ":" + pick));
+								playerDictionary[i].spreadsheetPicks[workingWeekNumber].Add(new PickMetaData(excelRow.Cell(1).Value.ToString() + ":" + pick, homeTeam));
 							}
 							else
 							{
-								playerDictionary[i].spreadsheetPicks[workingWeekNumber].Add(new PickMetaData(excelRow.Cell(1).Value.ToString()));
+								playerDictionary[i].spreadsheetPicks[workingWeekNumber].Add(new PickMetaData(excelRow.Cell(1).Value.ToString(), homeTeam));
 							}
 						}
 					}
