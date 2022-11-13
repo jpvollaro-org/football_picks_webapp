@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
-import Button from '../UI/Button';
 import { GiAmericanFootballHelmet, GiAmericanFootballBall } from 'react-icons/gi'
-import { FaRegSun, FaFileDownload } from 'react-icons/fa';
 
 export class NavMenu extends Component {
 	static displayName = NavMenu.name;
@@ -25,6 +23,7 @@ export class NavMenu extends Component {
 	}
 
 	render() {
+
 
 		return (
 			<header>
