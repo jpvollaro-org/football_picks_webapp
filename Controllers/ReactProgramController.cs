@@ -194,5 +194,40 @@ namespace ReactProgramNS.Controllers
 			}
 			return new SelectionResult("UNKNOWN PLAYER KEY");
 		}
+
+
+		private byte[] ReadAllDataFromFile(string filePath)
+		{
+			byte[] fileInbytes;
+			using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				int FileStreamLength = (int)fs.Length;
+				using (BinaryReader br = new BinaryReader(fs, new ASCIIEncoding()))
+				{
+					fileInbytes = new byte[FileStreamLength];
+					fileInbytes = br.ReadBytes(FileStreamLength);
+				}
+			}
+			return fileInbytes;
+		}
+
+		[HttpGet, DisableRequestSizeLimit]
+		[Route("DownloadFile")]
+		public FileDownloadDto DownloadFile(string fileName = "")
+		{
+			FileDownloadDto fileDto = new FileDownloadDto();
+			try
+			{
+				string downloadFilename = string.IsNullOrEmpty(fileName) ? ExcelHelperClass.PredictionsFileXls : fileName;
+				fileDto.fileName = Path.GetFileName(downloadFilename);
+				fileDto.strData = Convert.ToBase64String(ReadAllDataFromFile(downloadFilename));	
+			}
+			catch (Exception ex)
+			{
+				fileDto.strData = ex.Message;
+			}
+
+			return fileDto;
+		}
 	}
 }
