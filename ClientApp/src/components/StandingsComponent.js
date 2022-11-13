@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import TableComponent from './TableComponent';
 import useHttps from '../hooks/use-https';
 import myStyles from "./StandingsComponent.module.css";
+import AdminComponent from './AdminComponent';
 
 const StandingsComponent = () => { 
    const [data, setData] = useState([]);
@@ -67,6 +68,7 @@ const StandingsComponent = () => {
    return (
       <div className={myStyles.table }>
          <TableComponent className={myStyles.table1} columns={columns} data={data} />
+         <AdminComponent/>
       </div>
    );
 }
