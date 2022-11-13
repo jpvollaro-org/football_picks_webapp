@@ -21,6 +21,7 @@ namespace nfl_picks_pool
 
 	public class PickMetaData
 	{
+		public string homeTeam { get; set; } 
 		public int pointDifferences { get; set; } = 300;
 		public string pickString { get; set; }
 		public Boolean winner { get; set; }
@@ -28,9 +29,10 @@ namespace nfl_picks_pool
 		public Boolean winning {  get; set; }
 		public Boolean losing { get; set; }
 		public Boolean GofWeek { get; set; }
-		public PickMetaData(string pickString)
+		public PickMetaData(string pickString, string homeTeam="")
 		{
 			this.pickString = pickString;
+			this.homeTeam = homeTeam;
 		}
 	}
 

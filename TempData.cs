@@ -15,18 +15,23 @@ namespace nfl_picks_pool
 
 		public TempPlayerData(Player player, int pickWeek)
 		{
+			int currentWeek = ClassConstants.GetPickWeek();
 			this.name = player.name;
 			this.nameTeamCombo = new List<string>();
 			this.nameTeamCombo.Add(player.name);
 			this.nameTeamCombo.Add(player.favoriteTeam + ".png");
 			this.nameTeamCombo.Add(player.id.ToString());
-			if (player.spreadsheetPicks[pickWeek] == null)
+			this.spreadsheetPicks = new List<PickMetaData>();
+
+			if (player.spreadsheetPicks[pickWeek] != null)
 			{
-				this.spreadsheetPicks = new List<PickMetaData>();
-			}
-			else
-			{
-				this.spreadsheetPicks = player.spreadsheetPicks[pickWeek];
+				DateTime cutoffDateTime = DateTime.Now.AddHours(+4.0);
+				foreach (var pick in player.spreadsheetPicks[pickWeek])
+				{
+					//GameScore game = WeeklyScoreboard.GetGameScore(currentWeek, pick.homeTeam);
+					//if (game.gameStartTimeLocalTime < cutoffDateTime.ToLocalTime())
+						this.spreadsheetPicks.Add(pick);
+				}
 			}
 			this.currentPlayerPoints = player.currentPlayerPoints;
 			this.gameOfWeekDifference = 300;
