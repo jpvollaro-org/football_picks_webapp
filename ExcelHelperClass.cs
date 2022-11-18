@@ -24,6 +24,7 @@ namespace ReactProgramNS
 			"Files\\NFL PREDICTIONS 2022.xlsx";
 		
 		private static List<GameScore> currentWeeklyGames = new List<GameScore>();
+		private static List<GameScore> currentGofWeekGames = new List<GameScore>();
 
 		private int currentExcelRowNumber = 1;
 
@@ -119,7 +120,7 @@ namespace ReactProgramNS
 		{
 			int workingWeekNumber = 0;
 			currentWeeklyGames = new List<GameScore>();
-			List<GameScore> currentGofWeekGames = new List<GameScore>();
+			currentGofWeekGames = new List<GameScore>();
 
 			try
 			{
@@ -156,10 +157,16 @@ namespace ReactProgramNS
 									_logger.LogError(string.Format("{0}:{1} at {2}",
 										score.awayTeam, score.homeTeam, score.gameStartTimeLocalTime));
 									if (workingWeekNumber == weekNumber)
+									{
+										score.label = score.gameStartTimeLocalTime.DayOfWeek.ToString();
+										score.selectionNumber = currentWeeklyGames.Count + currentGofWeekGames.Count;
 										currentGofWeekGames.Add(score);
+									}
 								}
 								else if (workingWeekNumber == weekNumber)
 								{
+									score.label = score.gameStartTimeLocalTime.DayOfWeek.ToString();
+									score.selectionNumber = currentWeeklyGames.Count + currentGofWeekGames.Count;
 									currentWeeklyGames.Add(score);
 								}
 							}
@@ -192,9 +199,6 @@ namespace ReactProgramNS
 			catch
 			{
 			}
-
-			foreach (var g in currentGofWeekGames)
-				currentWeeklyGames.Add(g);
 		}
 
 		public Dictionary<int, Player> ReadPredectionFile()
@@ -209,9 +213,11 @@ namespace ReactProgramNS
 			return playerDictionary;
 		}
 
-		public static List<GameScore> GetWeeklyGameSelections()
+		public static SelectionClass GetWeeklyGameSelections()
 		{
-			return currentWeeklyGames;
+			return new SelectionClass() { 
+				gofWeekGames = currentGofWeekGames, standardGames = currentWeeklyGames
+			};
 		}
 
 		public string WritePicks(List<GameScore> playerScoreSelections, Player playerEntry, int currentPickWeek)
@@ -240,9 +246,16 @@ namespace ReactProgramNS
 				else
 				{
 					if (game.awayScore > game.homeScore)
-					   ws.Cell(scoreBoardGame.excelRowNumber-1, playerEntry.id).Value = game.awayTeam;
+					{
+						ws.Cell(scoreBoardGame.excelRowNumber, playerEntry.id).Value = "";
+						ws.Cell(scoreBoardGame.excelRowNumber - 1, playerEntry.id).Value = game.awayTeam;
+					}
 					else
-					   ws.Cell(scoreBoardGame.excelRowNumber, playerEntry.id).Value = game.homeTeam;
+					{
+						ws.Cell(scoreBoardGame.excelRowNumber, playerEntry.id).Value = game.homeTeam;
+						ws.Cell(scoreBoardGame.excelRowNumber - 1, playerEntry.id).Value = "";
+
+					}
 				}
 			}
 			wbook.Save();
