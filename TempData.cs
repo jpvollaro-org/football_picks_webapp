@@ -5,6 +5,12 @@ using System.Runtime.InteropServices;
 
 namespace nfl_picks_pool
 {
+	public class SelectionClass
+	{
+		public List<GameScore> standardGames { get; set; }
+		public List<GameScore> gofWeekGames { get; set; }
+	}
+
 	public class TempPlayerData : IComparable<TempPlayerData>
 	{
 		public string name { get; set; }
