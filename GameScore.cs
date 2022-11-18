@@ -30,6 +30,10 @@ namespace nfl_picks_pool
 
 		public int excelRowNumber { get; set; }	
 
+		public int selectionNumber { get; set; } = 0;
+
+		public string label { get; set; } = "";
+
 		public GameScore() { }
 
 		public GameScore(string awayTeamScore, string homeTeamScore)
