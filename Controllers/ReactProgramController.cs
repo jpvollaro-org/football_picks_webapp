@@ -78,7 +78,7 @@ namespace ReactProgramNS.Controllers
 
 		[HttpGet]
 		[Route("GetWeeklySelections")]
-		public List<GameScore> GetWeeklySelections(int weekNumber = 0)
+		public SelectionClass GetWeeklySelections(int weekNumber = 0)
 		{
 			return ExcelHelperClass.GetWeeklyGameSelections();
 		}

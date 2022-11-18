@@ -5,13 +5,15 @@ import SelectionOptionComponent from "./SelectionOptionComponent";
 import GameOfWeekComponent from './GameOfWeekComponent';
 
 const SelectionsComponent = (props) => {
-	let playerSelectionArray = [{}, {}, {}, {}, {} ]
+	let playerSelectionArray = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
 
 	const [responseMessage, setResponseMessage] = useState("");
 
 	const [data, setData] = useState([]);
+	const [dataGOW, setDataGOW] = useState([]);
 	const transformData = ((incomingData) => {
-		setData(incomingData);
+		setData(incomingData.standardGames);
+		setDataGOW(incomingData.gofWeekGames);
 	});
 
 	const { isLoading, error, sendRequestToFetch: sendToController } = useHttps();
@@ -65,6 +67,29 @@ const SelectionsComponent = (props) => {
 		sendToController({ url: urlString, method: 'Put', headers: headersValues, body: playerSelectionArray }, selectionResponseHandler);
 	};
 
+	const Test = ({ stations }) => (
+		<div>
+			{stations.map(station => (
+				<div className="station" key={station.id}>
+					<br />
+					<SelectionOptionComponent label={station.label} gameScore={station} changeHandler={resultHandler} tabIndex={station.selectionNumber} />
+				</div>
+			))}
+		</div>
+	); 
+
+	const Test2 = ({ stations2 }) => (
+		<div>
+			{stations2.map(station2 => (
+				<div className="station" key={station2.id}>
+					<br />
+					<GameOfWeekComponent gameScore={station2} side="away score" teamScore={playerSelectionArray[station2.selectionNumber].awayScore} SetScore={setScore} tabIndex={station2.selectionNumber} />
+					<GameOfWeekComponent gameScore={station2} side="home score" teamScore={playerSelectionArray[station2.selectionNumber].homeScore} SetScore={setScore} tabIndex={station2.selectionNumber} />
+				</div>
+			))}
+		</div>
+	);
+
 	if (isLoading) {
 		return (
 			<section>
@@ -93,13 +118,18 @@ const SelectionsComponent = (props) => {
 					</div>
 				</div>
 			</div>
-			<br/>
-			<SelectionOptionComponent label='Thursday:' gameScore={data[0]} changeHandler={resultHandler} tabIndex={0} />
-			<SelectionOptionComponent label='Sunday:' gameScore={data[1]} changeHandler={resultHandler} tabIndex={1} />
-			<SelectionOptionComponent label='Monday:' gameScore={data[2]} changeHandler={resultHandler} tabIndex={2} />
 			<br />
-			<GameOfWeekComponent gameScore={data[3]} side="away score" teamScore={playerSelectionArray[3].awayScore} SetScore={setScore} tabIndex={3} />
-			<GameOfWeekComponent gameScore={data[3]} side="home score" teamScore={playerSelectionArray[3].homeScore} SetScore={setScore} tabIndex={3} />
+			<div>
+				<Test stations={data} />
+			</div>
+			<div>
+				<Test2 stations2={dataGOW} />
+			</div>
+			{/*<SelectionOptionComponent label='Sunday:' gameScore={data[1]} changeHandler={resultHandler} tabIndex={1} />*/}
+			{/*<SelectionOptionComponent label='Monday:' gameScore={data[2]} changeHandler={resultHandler} tabIndex={2} />*/}
+			{/*<br />*/}
+			{/*<GameOfWeekComponent gameScore={data[3]} side="away score" teamScore={playerSelectionArray[3].awayScore} SetScore={setScore} tabIndex={3} />*/}
+			{/*<GameOfWeekComponent gameScore={data[3]} side="home score" teamScore={playerSelectionArray[3].homeScore} SetScore={setScore} tabIndex={3} />*/}
 			<div className="container">
 				<br />
 				<div className="row">
