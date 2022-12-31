@@ -124,7 +124,7 @@ namespace nfl_picks_pool
 	public class SportsApiViper : ISportsApi
 	{
 		private ILogger _logger { get; set; }
-		public static readonly string sportsViperApiKey = "2e4674074dmshf74e7d2da08fb82p122c91jsn22e9adfe64c7";
+		public static readonly string sportsViperApiKey = "";
 		public static readonly int sportsId = 63;
 		public static readonly int competitionId = 9464;
 		public static string testBody = @"[{""id"":10309027,""startTimestamp"":1663287300,""slug"":""los-angeles-chargers-kansas-city-chiefs"",""scoreHomeAwaySlug"":""7:10"",""scoreAwayHomeSlug"":""10:7"",""round"":2,""lastPeriod"":""period2"",""hasEventPlayerStatistics"":true,""status"":{""code"":14,""type"":""inprogress"",""title"":""2nd quarter""},""homeTeam"":{""id"":4422,""name"":""Kansas City Chiefs"",""short"":""Kansas City Chiefs"",""code"":""KCC"",""slug"":""kansas-city-chiefs"",""gender"":""M"",""teamColors"":{""primary"":""#aa0114"",""secondary"":""#ffffff""}},""awayTeam"":{""id"":4429,""name"":""Los Angeles Chargers"",""short"":""Los Angeles Chargers"",""code"":""LAC"",""slug"":""los-angeles-chargers"",""gender"":""M"",""teamColors"":{""primary"":""#3289ce"",""secondary"":""#ffc20e""}},""homeScore"":{""current"":7,""display"":7,""period1"":0,""period2"":7},""awayScore"":{""current"":10,""display"":10,""period1"":3,""period2"":7},""time"":{""played"":3600,""periodLength"":900,""overtimeLength"":600,""totalPeriodCount"":4},""competition"":{""id"":41244,""name"":""NFL, Regular Season"",""slug"":""nfl-regular-season"",""sport"":{""id"":63,""name"":""American Football"",""slug"":""american-football""},""category"":{""id"":1370,""code"":""US"",""name"":""USA"",""slug"":""usa"",""flag"":""usa""}}}]";
