@@ -42,6 +42,7 @@ namespace nfl_picks_pool
 		public string name { get; set; }
 		public List<string> nameTeamCombo { get; set; }
 		public int currentPlayerPoints { get; set; } = 0;
+		public int bonusPlayerPoints { get; set; } = 0;
 		public int futurePlayerPoints { get; set; }
 		public int gameOfWeekDifference { get; set; }
 		public string afcChamps { get; set; }

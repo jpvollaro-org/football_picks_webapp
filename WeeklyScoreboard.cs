@@ -115,8 +115,12 @@ namespace nfl_picks_pool
 						else if (g.gameOfWeek == true)
 						{
 							var myAwayTeam = myPicks.Where(x => x.pickString.StartsWith(g.awayTeam)).FirstOrDefault();
+							if (myAwayTeam == null)
+								continue;
 							gameOfWeekLogic.checkMyScore(myAwayTeam.pickString, gameScores);
 							var myHomeTeam = myPicks.Where(x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
+							if (myHomeTeam == null)
+								continue;
 							gameOfWeekLogic.checkMyScore(myHomeTeam.pickString, gameScores, p.id);
 						}
 					}

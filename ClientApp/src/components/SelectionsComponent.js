@@ -5,7 +5,7 @@ import SelectionOptionComponent from "./SelectionOptionComponent";
 import GameOfWeekComponent from './GameOfWeekComponent';
 
 const SelectionsComponent = (props) => {
-	let playerSelectionArray = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+	let playerSelections = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
 
 	const [responseMessage, setResponseMessage] = useState("");
 
@@ -25,29 +25,29 @@ const SelectionsComponent = (props) => {
 
 	const resultHandler = (event) => {
 		if (event.label === event.lookupKey) {
-			playerSelectionArray[event.tabIndex].homeTeam = event.lookupKey;
-			playerSelectionArray[event.tabIndex].homeScore = 100;
-			playerSelectionArray[event.tabIndex].awayScore = 0;
-			playerSelectionArray[event.tabIndex].awayTeam = event.opp;
+			playerSelections[event.tabIndex].homeTeam = event.lookupKey;
+			playerSelections[event.tabIndex].homeScore = 100;
+			playerSelections[event.tabIndex].awayScore = 0;
+			playerSelections[event.tabIndex].awayTeam = event.opp;
 		}
 		else {
-			playerSelectionArray[event.tabIndex].homeTeam = event.lookupKey;
-			playerSelectionArray[event.tabIndex].homeScore = 0;
-			playerSelectionArray[event.tabIndex].awayScore = 100;
-			playerSelectionArray[event.tabIndex].awayTeam = event.label;
+			playerSelections[event.tabIndex].homeTeam = event.lookupKey;
+			playerSelections[event.tabIndex].homeScore = 0;
+			playerSelections[event.tabIndex].awayScore = 100;
+			playerSelections[event.tabIndex].awayTeam = event.label;
 		}
 	}
 
 	const setScore = (e) => {
 		if (e.target.title === "home score") {
-			const v = playerSelectionArray[e.target.tabIndex].homeScore;
-			playerSelectionArray[e.target.tabIndex].homeScore = e.target.validity.valid ? e.target.value : v
-			playerSelectionArray[e.target.tabIndex].homeTeam = e.target.alt;
+			const v = playerSelections[e.target.tabIndex].homeScore;
+			playerSelections[e.target.tabIndex].homeScore = e.target.validity.valid ? e.target.value : v
+			playerSelections[e.target.tabIndex].homeTeam = e.target.alt;
 		}
 		else {
-			const v = playerSelectionArray[e.target.tabIndex].awayScore;
-			playerSelectionArray[e.target.tabIndex].awayScore = e.target.validity.valid ? e.target.value : v
-			playerSelectionArray[e.target.tabIndex].awayTeam = e.target.alt;
+			const v = playerSelections[e.target.tabIndex].awayScore;
+			playerSelections[e.target.tabIndex].awayScore = e.target.validity.valid ? e.target.value : v
+			playerSelections[e.target.tabIndex].awayTeam = e.target.alt;
 		}
 	}
 
@@ -64,27 +64,27 @@ const SelectionsComponent = (props) => {
 		event.preventDefault();
 		const headersValues = { 'content-type': 'application/json', 'playerKey': enteredPlayerKey };
 		var urlString = "api/ReactProgram/SendPlayerWeeklySelections";
-		sendToController({ url: urlString, method: 'Put', headers: headersValues, body: playerSelectionArray }, selectionResponseHandler);
+		sendToController({ url: urlString, method: 'Put', headers: headersValues, body: playerSelections }, selectionResponseHandler);
 	};
 
-	const Test = ({ stations }) => (
+	const SelectionComponents = ({ weeklySelections }) => (
 		<div>
-			{stations.map(station => (
-				<div className="station" key={station.id}>
+			{weeklySelections.map(weeklySelectedItem => (
+				<div key={weeklySelectedItem.id}>
 					<br />
-					<SelectionOptionComponent label={station.label} gameScore={station} changeHandler={resultHandler} tabIndex={station.selectionNumber} />
+					<SelectionOptionComponent label={weeklySelectedItem.label} gameScore={weeklySelectedItem} changeHandler={resultHandler} tabIndex={weeklySelectedItem.selectionNumber} />
 				</div>
 			))}
 		</div>
 	); 
 
-	const Test2 = ({ stations2 }) => (
+	const GofWeekComponents = ({ gameOfWeekSelections }) => (
 		<div>
-			{stations2.map(station2 => (
-				<div className="station" key={station2.id}>
+			{gameOfWeekSelections.map(gofwSelectedItem => (
+				<div key={gofwSelectedItem.id}>
 					<br />
-					<GameOfWeekComponent gameScore={station2} side="away score" teamScore={playerSelectionArray[station2.selectionNumber].awayScore} SetScore={setScore} tabIndex={station2.selectionNumber} />
-					<GameOfWeekComponent gameScore={station2} side="home score" teamScore={playerSelectionArray[station2.selectionNumber].homeScore} SetScore={setScore} tabIndex={station2.selectionNumber} />
+					<GameOfWeekComponent gameScore={gofwSelectedItem} side="away score" teamScore={playerSelections[gofwSelectedItem.selectionNumber].awayScore} SetScore={setScore} tabIndex={gofwSelectedItem.selectionNumber} />
+					<GameOfWeekComponent gameScore={gofwSelectedItem} side="home score" teamScore={playerSelections[gofwSelectedItem.selectionNumber].homeScore} SetScore={setScore} tabIndex={gofwSelectedItem.selectionNumber} />
 				</div>
 			))}
 		</div>
@@ -118,18 +118,12 @@ const SelectionsComponent = (props) => {
 					</div>
 				</div>
 			</div>
-			<br />
 			<div>
-				<Test stations={data} />
+				<SelectionComponents weeklySelections={data} />
 			</div>
 			<div>
-				<Test2 stations2={dataGOW} />
+				<GofWeekComponents gameOfWeekSelections={dataGOW} />
 			</div>
-			{/*<SelectionOptionComponent label='Sunday:' gameScore={data[1]} changeHandler={resultHandler} tabIndex={1} />*/}
-			{/*<SelectionOptionComponent label='Monday:' gameScore={data[2]} changeHandler={resultHandler} tabIndex={2} />*/}
-			{/*<br />*/}
-			{/*<GameOfWeekComponent gameScore={data[3]} side="away score" teamScore={playerSelectionArray[3].awayScore} SetScore={setScore} tabIndex={3} />*/}
-			{/*<GameOfWeekComponent gameScore={data[3]} side="home score" teamScore={playerSelectionArray[3].homeScore} SetScore={setScore} tabIndex={3} />*/}
 			<div className="container">
 				<br />
 				<div className="row">

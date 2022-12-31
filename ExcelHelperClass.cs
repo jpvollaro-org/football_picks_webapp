@@ -78,9 +78,9 @@ namespace ReactProgramNS
 						{
 							case 2:
 								if (i == 8)
-									playerDictionary[i - 2].currentPlayerPoints = int.Parse(s);
+									playerDictionary[i - 2].bonusPlayerPoints = int.Parse(s);
 								else
-									playerDictionary[i - 1].currentPlayerPoints = int.Parse(s);
+									playerDictionary[i - 1].bonusPlayerPoints = int.Parse(s);
 								break;
 							case 3:
 								playerDictionary[i].afcChamps = s;
