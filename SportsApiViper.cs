@@ -222,6 +222,7 @@ namespace nfl_picks_pool
 			Dictionary<string, GameScore> weeksGameScores = new Dictionary<string, GameScore>();
 
 			var thurssday = await GetPastGameScores(gameDate.ToString("yyyy-MM-dd"), weeksGameScores);
+			var saturday = await GetPastGameScores(gameDate.AddDays(2).ToString("yyyy-MM-dd"), weeksGameScores);
 			var sunday = await GetPastGameScores(gameDate.AddDays(3).ToString("yyyy-MM-dd"), weeksGameScores);
 			var monday = await GetPastGameScores(gameDate.AddDays(5).ToString("yyyy-MM-dd"), weeksGameScores);
 			return weeksGameScores;
