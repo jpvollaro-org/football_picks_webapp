@@ -12,9 +12,10 @@ namespace nfl_picks_pool
 
 		public static int GetPickWeek()
 		{
+			//TODO figure out year change 2022 .. 2023 .. 2024 ..
 			DateTime now = DateTime.UtcNow.AddDays(0);
 			var x = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(now, CalendarWeekRule.FirstDay, DayOfWeek.Wednesday);
-			return x - 36;
+			return x + 16;
 		}
 
 	}
