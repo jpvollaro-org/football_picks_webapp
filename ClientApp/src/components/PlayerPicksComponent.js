@@ -2,8 +2,10 @@ import React, { useMemo, useState, useEffect } from "react";
 import TableComponent from './TableComponent';
 import useHttps from '../hooks/use-https';
 import myStyles from "./PlayerPicksComponent.module.css";
+import Select from 'react-select'
 
 let winningPointDifference = 400;
+let selectedGameString = '';
 
 // Custom component to render Picks 
 const Picks = ({ values }) => {
@@ -83,10 +85,10 @@ const PlayerPicksComponent = (props) => {
 
    const { isLoading, error, sendRequestToFetch: getProgramData } = useHttps();
    useEffect(() => {
-      var urlString = "api/ReactProgram/getProgramData";
+      var urlString = "api/ReactProgram/getProgramData?pickFilter=" + selectedGameString;
       getProgramData({ url: urlString }, transformData);
       // eslint-disable-next-line
-   }, []);
+   }, [selectedGameString]);
 
 
    const columns = useMemo(
@@ -120,6 +122,30 @@ const PlayerPicksComponent = (props) => {
       [props]
    );
 
+   const [selectedFromUI, setSelectedFromUI] = useState('');
+   const [releaseChoices, setReleaseChoices] = useState([]);
+   const [selectedOptions, setSelectedOptions] = useState([]);
+
+   const updateSelections = (choices) => {
+      setReleaseChoices(choices);
+   };
+   useEffect(() => {
+      getProgramData({ url: "api/ReactProgram/getGameOfWeekChoices" }, updateSelections);
+      // eslint-disable-next-line
+   }, []);
+   const handleChange = (options) => {
+      setSelectedOptions(options);
+      let tmp = '';
+      let index = 0;
+      for (; index < options.length; index++) {
+         tmp += options[index].value;
+         if (index + 1 < options.length)
+            tmp += " , ";
+      }
+      setSelectedFromUI(tmp);
+      selectedGameString = tmp;
+   };
+
    if (isLoading) {
       return (
          <section className={myStyles.Loading}>
@@ -139,6 +165,20 @@ const PlayerPicksComponent = (props) => {
    return (
       <div>
          <p className={myStyles.cssfix}>{data.scoreLine}</p>
+         <Select
+            isMulti
+            name="releases"
+            options={releaseChoices}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            isLoading={isLoading}
+            isSearchable={true}
+            closeMenuOnSelect={false}
+            onChange={handleChange}
+            selectResetinput={false}
+         />
+{/*         <Button onClick={doNothingHandler}></Button>*/}
+
          <div className={myStyles.table}>
             <TableComponent columns={columns} data={data.players} />
          </div>
