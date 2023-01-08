@@ -5,6 +5,27 @@ using System.Runtime.InteropServices;
 
 namespace nfl_picks_pool
 {
+	public class GamedayAwayHomeTeamSelection
+	{
+        public string value { get; set; }
+        public string label { get; set; }
+        public GamedayAwayHomeTeamSelection()
+        {
+        }
+
+        public GamedayAwayHomeTeamSelection(string myValue)
+        {
+            value = myValue;
+            label = myValue;
+        }
+
+        public GamedayAwayHomeTeamSelection(string myLabel, string myValue)
+        {
+            value = myValue;
+            label = myLabel;
+        }
+    }
+
 	public class SelectionClass
 	{
 		public List<GameScore> standardGames { get; set; }
@@ -19,7 +40,7 @@ namespace nfl_picks_pool
 		public int currentPlayerPoints { get; set; }
 		public int gameOfWeekDifference { get; set; }
 
-		public TempPlayerData(Player player, int pickWeek)
+		public TempPlayerData(Player player, int pickWeek, string pickFilter = "")
 		{
 			int currentWeek = ClassConstants.GetPickWeek();
 			this.name = player.name;
@@ -34,9 +55,16 @@ namespace nfl_picks_pool
 				DateTime cutoffDateTime = DateTime.Now.AddHours(+4.0);
 				foreach (var pick in player.spreadsheetPicks[pickWeek])
 				{
-					//GameScore game = WeeklyScoreboard.GetGameScore(currentWeek, pick.homeTeam);
-					//if (game.gameStartTimeLocalTime < cutoffDateTime.ToLocalTime())
-						this.spreadsheetPicks.Add(pick);
+					if (!String.IsNullOrEmpty(pickFilter))
+					{
+						int stringIndex = pick.pickString.IndexOf(':');
+						if (stringIndex > 0)
+						{
+							if (!pickFilter.Contains(pick.pickString.Substring(0, stringIndex)))
+								continue;
+						}
+					}
+					this.spreadsheetPicks.Add(pick);
 				}
 			}
 			this.currentPlayerPoints = player.currentPlayerPoints;
