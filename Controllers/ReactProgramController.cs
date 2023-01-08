@@ -40,17 +40,21 @@ namespace ReactProgramNS.Controllers
 		private static Dictionary<int, Player> playerTable = null;
 		private static int currentWeekNumber = ClassConstants.GetPickWeek();
 		private static ISportsApi _sportsApi;
+		private static readonly object ExcelFileLock = new object();
+		private static string lastPickString = string.Empty;
 
 		public ReactProgramController(ILogger<ReactProgramController> logger)
 		{
 			_logger = logger;
 			_sportsApi = new SportsApiViper(logger);
-			if (playerTable == null)
-			{
-				WeeklyScoreboard.BuildWeeklyScoreboard(_sportsApi, logger);
-				ExcelHelperClass excelHelperClass = new ExcelHelperClass(logger);
-				playerTable = excelHelperClass.ReadPredectionFile();
-				WeeklyScoreboard.CalculatePoints(playerTable, logger);
+			lock (ExcelFileLock)
+            {
+				if (playerTable == null)
+				{
+					WeeklyScoreboard.BuildWeeklyScoreboard(_sportsApi, logger);
+					ExcelHelperClass excelHelperClass = new ExcelHelperClass(logger);
+					playerTable = excelHelperClass.ReadPredectionFile();
+				}
 			}
 			WeeklyScoreboard.CalculatePoints(playerTable, logger);
 		}
@@ -85,8 +89,14 @@ namespace ReactProgramNS.Controllers
 
 		[HttpGet]
 		[Route("~/api/ReactProgram/getProgramData")]
-		public async Task<TempData> getProgramData()
+		public async Task<TempData> getProgramData([FromQuery] string pickFilter)
 		{
+			if (pickFilter == "RELOAD")
+			{
+				pickFilter = lastPickString;
+			}
+			lastPickString= pickFilter;
+
 			TempData result = new TempData();
 			try
 			{
@@ -127,12 +137,12 @@ namespace ReactProgramNS.Controllers
 				foreach (var playerEntry in playerTable)
 				{
 					Player player = playerEntry.Value;
-					TempPlayerData tempPlayerData = new TempPlayerData(player, currentWeekNumber);
+					TempPlayerData tempPlayerData = new TempPlayerData(player, currentWeekNumber, pickFilter);
 					for (int idx = 0; idx < tempPlayerData.spreadsheetPicks.Count; idx++)
 					{
 						string p = tempPlayerData.spreadsheetPicks[idx].pickString;
 
-						if (p.Contains(':'))
+                        if (p.Contains(':'))
 						{
 							var pickMetaData = gameOfWeekLogic.checkMyScore(p, scoreBoard);
 							if (pickMetaData == null)
@@ -173,7 +183,37 @@ namespace ReactProgramNS.Controllers
 			}
 		}
 
-		[HttpPut]
+		[HttpGet]
+		[Route("~/api/ReactProgram/getGameOfWeekChoices")]
+		public List<GamedayAwayHomeTeamSelection> getGameOfWeekChoices()
+        {
+			List<GamedayAwayHomeTeamSelection> teams = new List<GamedayAwayHomeTeamSelection>();
+			teams.Add(new GamedayAwayHomeTeamSelection("NO FILTER",""));
+            teams.Add(new GamedayAwayHomeTeamSelection("RELOAD"));
+            var weeklyGames = ExcelHelperClass.GetWeeklyGameSelections().gofWeekGames;
+			foreach (var weeklyGame in weeklyGames)
+			{
+				var currentHour = DateTime.Now.ToLocalTime().Hour;
+				if (weeklyGame.gameStartTimeLocalTime.Hour == 13)
+				{
+					if (currentHour < 17)
+                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
+                }
+                else if (weeklyGame.gameStartTimeLocalTime.Hour == 16)
+                {
+                    if (currentHour >=16 && currentHour < 21)
+                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
+                }
+				else
+                {
+                    if (currentHour >= 20 )
+                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
+                }
+			}
+			return teams;
+		}
+
+        [HttpPut]
 		[Route("~/api/ReactProgram/SendPlayerWeeklySelections")]
 		public SelectionResult SendPlayerWeeklySelections(List<GameScore> playerSelectedScores)
 		{
