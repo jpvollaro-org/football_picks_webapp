@@ -193,22 +193,7 @@ namespace ReactProgramNS.Controllers
             var weeklyGames = ExcelHelperClass.GetWeeklyGameSelections().gofWeekGames;
 			foreach (var weeklyGame in weeklyGames)
 			{
-				var currentHour = DateTime.Now.ToLocalTime().Hour;
-				if (weeklyGame.gameStartTimeLocalTime.Hour == 13)
-				{
-					if (currentHour < 17)
-                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
-                }
-                else if (weeklyGame.gameStartTimeLocalTime.Hour == 16)
-                {
-                    if (currentHour >=16 && currentHour < 21)
-                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
-                }
-				else
-                {
-                    if (currentHour >= 20 )
-                        teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
-                }
+				teams.Add(new GamedayAwayHomeTeamSelection($"{weeklyGame.awayTeam}-{weeklyGame.homeTeam}"));
 			}
 			return teams;
 		}
