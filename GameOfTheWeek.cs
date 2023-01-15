@@ -61,14 +61,32 @@ namespace nfl_picks_pool
 			return this.winningPlayers;
 		}
 
+		public bool SoleWinner(GameScore score, string winningTeamName)
+		{
+            if (score.homeTeam == winningTeamName && HomeTeamSelections == 1)
+                return true;
+			if (score.awayTeam == winningTeamName && AwayTeamSelections == 1)
+				return true;
+			return false;
+        }
+
+		public int ScoreDifference()
+		{
+			return currentWinningPointDifference;
+		}
+
 		public int GetBonusPoints(GameScore score, string winningTeamName)
 		{
+			int bonusPoints = 0;
+
 			if (score.homeTeam == winningTeamName && HomeTeamSelections == 1)
-				return 25;
+                bonusPoints += 25;
 			if (score.awayTeam == winningTeamName && AwayTeamSelections == 1)
-				return 25;
-			else
-				return 0;
+                bonusPoints += 25;
+			if (currentWinningPointDifference == 0)
+				bonusPoints += 100;
+
+			return bonusPoints;
 		}
 	}
 }
