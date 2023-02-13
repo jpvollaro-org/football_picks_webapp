@@ -29,12 +29,42 @@ namespace nfl_picks_pool
 		public Boolean winning {  get; set; }
 		public Boolean losing { get; set; }
 		public Boolean GofWeek { get; set; }
+		public int pickScoreValue { get; set; } = 0;
 		public PickMetaData(string pickString, string homeTeam="")
 		{
 			this.pickString = pickString;
 			this.homeTeam = homeTeam;
 		}
-	}
+
+        internal void calculatePickScoreValue(int weekNumber)
+        {
+			int gofwPointValue = 0;
+			if (weekNumber < 19)
+				gofwPointValue = ClassConstants.GOFW_WINNER_POINTS;
+			else
+				gofwPointValue = ClassConstants.PLAYOFF_WINNER_POINTS;
+
+            if (winner == false)
+			{
+				pickScoreValue= 0;
+				return;
+			}
+
+			if (GofWeek== false)
+			{
+				pickScoreValue = ClassConstants.SELECT_WINNER_POINTS;
+				if (soleWinner)
+					pickScoreValue+= ClassConstants.SOLE_WINNER_POINTS;
+				return;
+			}
+
+			pickScoreValue= gofwPointValue;
+			if (soleWinner)
+				pickScoreValue += ClassConstants.SOLE_WINNER_POINTS;
+			if (pointDifferences == 0)
+				pickScoreValue += ClassConstants.PERFECT_SCORE_POINTS;
+        }
+    }
 
 	public class Player : IComparable<Player>
 	{
@@ -97,42 +127,21 @@ namespace nfl_picks_pool
 				}
 
 				StringBuilder sb = new StringBuilder();
+				StringBuilder sbNew = new StringBuilder();
 				foreach (var pickmd in this.spreadsheetPicks[idx])
 				{
 					sb.Append(pickmd.pickString);
-					if (pickmd.pickString.Contains(':'))
+					sbNew.Append(pickmd.pickString);
+					x.points += pickmd.pickScoreValue;
+					if (pickmd.pickScoreValue != 0)
 					{
-						if (pickmd.winner)
-						{
-							if (pickmd.soleWinner)
-							{
-								sb.Append("+50");
-								x.points += 50;
-							}
-							else
-							{
-								sb.Append("+25");
-								x.points += 25;
-							}
-						}
-					}
-					else
-					{
-						if (pickmd.soleWinner)
-						{
-							sb.Append("+35");
-							x.points += 35;
-						}
-						else if (pickmd.winner)
-						{
-							sb.Append("+10");
-							x.points += 10;
-						}
+						sbNew.Append($"+{pickmd.pickScoreValue}");
 					}
 					sb.Append(", ");
+					sbNew.Append(", ");
 				}
 				_myNewNewTable.weeklyPoints += x.points;
-				x.picks = sb.ToString();
+				x.picks = sbNew.ToString();
 			}
 			_myNewNewTable.totalPoints = _myNewNewTable.weeklyPoints + _myNewNewTable.bonusPoints;
 			return _myNewNewTable;

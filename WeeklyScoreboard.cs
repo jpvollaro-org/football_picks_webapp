@@ -13,8 +13,10 @@ namespace nfl_picks_pool
 	{
 		static public Dictionary<string, GameScore>[] pastResults = new Dictionary<string, GameScore>[32];
 		static private readonly DateTime startThursdayDate = DateTime.Parse("2022-09-08");
+        static private readonly object WeeklyScoreboardLock = new object();
 
-		public static void WriteToJsonFile<T>(string filePath, T objectToWrite, bool append = false) where T : new()
+
+        public static void WriteToJsonFile<T>(string filePath, T objectToWrite, bool append = false) where T : new()
 		{
 			TextWriter writer = null;
 			try
@@ -77,72 +79,82 @@ namespace nfl_picks_pool
 
 		public static void CalculatePoints(Dictionary<int, Player> playerTable, ILogger logger)
 		{
-			PropBets.CalculatePropPoints(playerTable);
-
-			int currentPickWeek = ClassConstants.GetPickWeek();
-			for (int weekNumber = 1; weekNumber <= currentPickWeek; weekNumber++)
+			lock (WeeklyScoreboardLock)
 			{
-				Dictionary<string, GameScore> gameScores = pastResults[weekNumber];
-				foreach (var gameScore in gameScores)
-				{
-					int numCorrectPicks = 0;
-					Player soleWinner = null;
-					var g = gameScore.Value;
-					if (g.finalScore == false)
-						continue;
-					GameOfWeekLogic gameOfWeekLogic = new GameOfWeekLogic();
-					var winningTeamName = g.GetWinningTeamName();
-					foreach (var playerEntry in playerTable)
-					{
-						Player p = playerEntry.Value;
-						var myPicks = p.spreadsheetPicks[weekNumber];
-						if (myPicks == null)
-						{
-							continue;
-						}
 
-						if (g.gameOfWeek == false)
+				PropBets.CalculatePropPoints(playerTable);
+
+				int currentPickWeek = ClassConstants.GetPickWeek();
+				for (int weekNumber = 1; weekNumber <= currentPickWeek; weekNumber++)
+				{
+					Dictionary<string, GameScore> gameScores = pastResults[weekNumber];
+					foreach (var gameScore in gameScores)
+					{
+						int numCorrectPicks = 0;
+						Player soleWinner = null;
+						var g = gameScore.Value;
+						if (g.finalScore == false)
+							continue;
+						GameOfWeekLogic gameOfWeekLogic = new GameOfWeekLogic();
+						var winningTeamName = g.GetWinningTeamName();
+						foreach (var playerEntry in playerTable)
 						{
-							var pickmd = myPicks.Where(x => x.pickString == winningTeamName).FirstOrDefault();
-							if (pickmd != null)
+							Player p = playerEntry.Value;
+							var myPicks = p.spreadsheetPicks[weekNumber];
+							if (myPicks == null)
 							{
-								numCorrectPicks++;
-								p.currentPlayerPoints += 10;
-								pickmd.winner = true;
-								soleWinner = p;
+								continue;
+							}
+
+							if (g.gameOfWeek == false)
+							{
+								var pickmd = myPicks.Where(x => x.pickString == winningTeamName).FirstOrDefault();
+								if (pickmd != null)
+								{
+									numCorrectPicks++;
+									p.currentPlayerPoints += ClassConstants.SELECT_WINNER_POINTS;
+									pickmd.winner = true;
+									soleWinner = p;
+									pickmd.calculatePickScoreValue(weekNumber);
+								}
+							}
+							else if (g.gameOfWeek == true)
+							{
+								var myAwayTeam = myPicks.Where(x => x.pickString.StartsWith(g.awayTeam)).FirstOrDefault();
+								if (myAwayTeam == null)
+									continue;
+								gameOfWeekLogic.checkMyScore(myAwayTeam.pickString, gameScores);
+								var myHomeTeam = myPicks.Where(x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
+								if (myHomeTeam == null)
+									continue;
+								gameOfWeekLogic.checkMyScore(myHomeTeam.pickString, gameScores, p.id);
 							}
 						}
-						else if (g.gameOfWeek == true)
+						if (g.gameOfWeek == false && numCorrectPicks == 1)
 						{
-							var myAwayTeam = myPicks.Where(x => x.pickString.StartsWith(g.awayTeam)).FirstOrDefault();
-							if (myAwayTeam == null)
-								continue;
-							gameOfWeekLogic.checkMyScore(myAwayTeam.pickString, gameScores);
-							var myHomeTeam = myPicks.Where(x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
-							if (myHomeTeam == null)
-								continue;
-							gameOfWeekLogic.checkMyScore(myHomeTeam.pickString, gameScores, p.id);
-						}
-					}
-					if (g.gameOfWeek == false && numCorrectPicks == 1)
-					{
-						soleWinner.currentPlayerPoints += 25;
-						var pickmd = soleWinner.spreadsheetPicks[weekNumber]
-							.Where(x => x.pickString == winningTeamName).FirstOrDefault();
-						pickmd.soleWinner = true;
-					}
-					else if (g.gameOfWeek)
-					{
-						foreach (var pid in gameOfWeekLogic.winningPlayers)
+								soleWinner.currentPlayerPoints += ClassConstants.SOLE_WINNER_POINTS;
+								var pickmd = soleWinner.spreadsheetPicks[weekNumber]
+									.Where(x => x.pickString == winningTeamName).FirstOrDefault();
+								pickmd.soleWinner = true;
+								pickmd.pointDifferences = 99;
+                                pickmd.calculatePickScoreValue(weekNumber);
+                        }
+                        else if (g.gameOfWeek)
 						{
-							int bonusPoints = gameOfWeekLogic.GetBonusPoints(g, winningTeamName);
-							playerTable[pid].currentPlayerPoints += (25  + bonusPoints);
-							var pickmd = playerTable[pid].spreadsheetPicks[weekNumber].Where(
-								x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
-							pickmd.winner = true;
-							pickmd.soleWinner = bonusPoints != 0 ? true : false; 
-						}
-
+							int gameOfWeekPointValue = weekNumber < 19 ? ClassConstants.GOFW_WINNER_POINTS : ClassConstants.PLAYOFF_WINNER_POINTS;
+							foreach (var pid in gameOfWeekLogic.winningPlayers)
+							{
+								int bonusPoints = gameOfWeekLogic.GetBonusPoints(g, winningTeamName, ClassConstants.SOLE_WINNER_POINTS, ClassConstants.PERFECT_SCORE_POINTS);
+								playerTable[pid].currentPlayerPoints += (gameOfWeekPointValue + bonusPoints);
+								var pickmd = playerTable[pid].spreadsheetPicks[weekNumber].Where(
+									x => x.pickString.StartsWith(g.homeTeam)).FirstOrDefault();
+								pickmd.GofWeek= true;
+								pickmd.winner = true;
+								pickmd.soleWinner = gameOfWeekLogic.SoleWinner(g, winningTeamName);
+								pickmd.pointDifferences = gameOfWeekLogic.ScoreDifference();
+								pickmd.calculatePickScoreValue(weekNumber);
+                            }
+                        }
 					}
 				}
 			}

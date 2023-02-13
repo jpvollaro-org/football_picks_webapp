@@ -75,16 +75,16 @@ namespace nfl_picks_pool
 			return currentWinningPointDifference;
 		}
 
-		public int GetBonusPoints(GameScore score, string winningTeamName)
+		public int GetBonusPoints(GameScore score, string winningTeamName, int pv3, int pv4)
 		{
 			int bonusPoints = 0;
 
 			if (score.homeTeam == winningTeamName && HomeTeamSelections == 1)
-                bonusPoints += 25;
+                bonusPoints += pv3;
 			if (score.awayTeam == winningTeamName && AwayTeamSelections == 1)
-                bonusPoints += 25;
+                bonusPoints += pv3;
 			if (currentWinningPointDifference == 0)
-				bonusPoints += 100;
+				bonusPoints +=	pv4;
 
 			return bonusPoints;
 		}
